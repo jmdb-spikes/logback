@@ -23,9 +23,10 @@ public class LogbackDemoApp {
      * @see http://logback.qos.ch/manual/layouts.html
      * @see http://en.wikipedia.org/wiki/ISO_8601
      * @see http://docs.oracle.com/javase/1.4.2/docs/api/java/text/SimpleDateFormat.html
+     * @see https://github.com/clj-io/logging
      */
     public static void main(String[] args) {
-        initialiseConsoleLogging(Level.TRACE, "[%date{yyyy-mm-dd hh:MM:ss.SSS z Z]} %-6level %-35logger{35} - %message%n");
+        initialiseConsoleLogging(Level.TRACE, "[%date{yyyy-mm-dd'T'hh:MM:ss.SSS z Z]} %-6level %-35logger{35} - %message%n");
 
         log.trace("VERY LOW LEVEL");
         log.debug("Some debug...");
@@ -46,6 +47,7 @@ public class LogbackDemoApp {
         consoleAppender.stop();
 
         PatternLayoutEncoder layoutEncoder = new PatternLayoutEncoder();
+
         layoutEncoder.setPattern(pattern);
         layoutEncoder.setContext(context);
         layoutEncoder.start();
