@@ -30,6 +30,12 @@ public class LogbackDemoApp {
      * @see http://en.wikipedia.org/wiki/ISO_8601
      * @see http://docs.oracle.com/javase/1.4.2/docs/api/java/text/SimpleDateFormat.html
      * @see https://github.com/clj-io/logging
+     *
+     * For Access logging:
+     *
+     * @see http://logback.qos.ch/access.html#teeFilter
+     * @see http://www.loganalyzer.net/log-analyzer/apache-combined-log.html
+     * @see http://en.wikipedia.org/wiki/Common_Log_Format
      */
     public static void main(String[] args) {
 
@@ -102,7 +108,7 @@ public class LogbackDemoApp {
 
         rollingFileAppender.setEncoder(layoutEncoder);
         rollingFileAppender.setContext(context);
-
+        rollingFileAppender.setName(appenderName);
         rollingFileAppender.setFile(filename);
 
         rollingFileAppender.setAppend(append); //append to or truncate the file
