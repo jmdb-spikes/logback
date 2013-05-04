@@ -36,6 +36,12 @@ public class LogbackDemoApp {
      * @see http://logback.qos.ch/access.html#teeFilter
      * @see http://www.loganalyzer.net/log-analyzer/apache-combined-log.html
      * @see http://en.wikipedia.org/wiki/Common_Log_Format
+     *
+     * For Log processing:
+     *
+     * http://logstash.net/
+     * http://kibana.org/
+     * http://www.balabit.com/network-security/syslog-ng
      */
     public static void main(String[] args) {
 
