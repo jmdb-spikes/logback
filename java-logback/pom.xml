@@ -16,6 +16,29 @@
             <artifactId>logback-classic</artifactId>
             <version>1.0.12</version>
         </dependency>
+        <dependency>
+            <groupId>ch.qos.logback.extensions</groupId>
+            <artifactId>logback-ext-json-classic</artifactId>
+            <version>version</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback.extensions</groupId>
+            <artifactId>logback-ext-jackson</artifactId>
+            <version>version</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.codehaus.jackson</groupId>
+            <artifactId>jackson-mapper-asl</artifactId>
+            <version>1.9.12</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.logstash.logback</groupId>
+            <artifactId>logstash-logback-encoder</artifactId>
+            <version>1.2</version>
+        </dependency>
     </dependencies>
 
 </project>

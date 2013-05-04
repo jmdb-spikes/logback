@@ -6,18 +6,18 @@ import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.ConsoleAppender;
+import ch.qos.logback.core.encoder.Encoder;
 import ch.qos.logback.core.rolling.RollingFileAppender;
-import ch.qos.logback.core.rolling.RollingPolicy;
 import ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP;
 import ch.qos.logback.core.rolling.TimeBasedRollingPolicy;
-import ch.qos.logback.core.rolling.TriggeringPolicy;
 import ch.qos.logback.core.util.StatusPrinter;
+import net.logstash.logback.encoder.LogstashEncoder;
 import org.slf4j.LoggerFactory;
 
 public class LogbackDemoApp {
 
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(LogbackDemoApp.class);
-    private static final String STANDARD_OPS_FORMAT = "[%date{yyyy-mm-dd'T'hh:MM:ss.SSS z Z]} %-6level %-35logger{35} - %message%n";
+    private static final String STANDARD_OPS_FORMAT = "[%date{yyyy-mm-dd'T'hh:MM:ss.SSS Z (z)]} %-6level %-35logger{35} - %message%n";
 
     /**
      * Possible patterns
@@ -42,12 +42,21 @@ public class LogbackDemoApp {
         initialiseConsoleLogging(Level.TRACE, STANDARD_OPS_FORMAT);
 
 
-        TimeBasedRollingPolicy sizeAndTimeBasedPolicy = sizeAndTimeTriggeringPolicy(
+        TimeBasedRollingPolicy rollingPolicyForFile = sizeAndTimeTriggeringPolicy(
                 3, false, "10mb", "/var/log/logback-demo/lbd-application.%d{yyyy-MM-dd}.log");
 
-        initialiseFileLogging("application-log", Level.TRACE, STANDARD_OPS_FORMAT,
+        initialiseFileLogging("application-log", Level.TRACE,
                               "/var/log/logback-demo/lbd-application.log",true,
-                              sizeAndTimeBasedPolicy);
+                              patternEncoder(STANDARD_OPS_FORMAT),
+                              rollingPolicyForFile);
+
+        TimeBasedRollingPolicy rollingPolicyForJson = sizeAndTimeTriggeringPolicy(
+                3, false, "10mb", "/var/log/logback-demo/lbd-application-json.%d{yyyy-MM-dd}.log");
+
+        initialiseFileLogging("application-logstash-log", Level.TRACE,
+                              "/var/log/logback-demo/lbd-application-json.log", true,
+                              logstashEncoder(),
+                              rollingPolicyForJson);
 
         printStatus();
 
@@ -58,6 +67,7 @@ public class LogbackDemoApp {
         log.error("OMG! AN ERROR!!!");
         log.error("AN Error with stack trace!", new IllegalAccessException("BOOM!"));
     }
+
 
     private static void printStatus() {
         LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
@@ -89,8 +99,22 @@ public class LogbackDemoApp {
         StatusPrinter.printInCaseOfErrorsOrWarnings(context);
     }
 
-    private static void initialiseFileLogging(String appenderName, Level level, String pattern,
+    private static PatternLayoutEncoder patternEncoder(String pattern) {
+        PatternLayoutEncoder layoutEncoder = new PatternLayoutEncoder();
+
+        layoutEncoder.setPattern(pattern);
+        return layoutEncoder;
+    }
+
+    private static LogstashEncoder logstashEncoder() {
+        return new LogstashEncoder();
+    }
+
+
+
+    private static void initialiseFileLogging(String appenderName, Level level,
                                               String filename, boolean append,
+                                              Encoder encoder,
                                               TimeBasedRollingPolicy<ILoggingEvent> timeBasedRollingPolicy) {
 
         LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
@@ -100,13 +124,10 @@ public class LogbackDemoApp {
 
         RollingFileAppender<ILoggingEvent> rollingFileAppender = new RollingFileAppender<ILoggingEvent>();
 
-        PatternLayoutEncoder layoutEncoder = new PatternLayoutEncoder();
+        encoder.setContext(context);
+        encoder.setContext(context);
 
-        layoutEncoder.setPattern(pattern);
-        layoutEncoder.setContext(context);
-
-
-        rollingFileAppender.setEncoder(layoutEncoder);
+        rollingFileAppender.setEncoder(encoder);
         rollingFileAppender.setContext(context);
         rollingFileAppender.setName(appenderName);
         rollingFileAppender.setFile(filename);
@@ -119,7 +140,7 @@ public class LogbackDemoApp {
         timeBasedRollingPolicy.setContext(context);
         timeBasedRollingPolicy.setParent(rollingFileAppender);
 
-        layoutEncoder.start();
+        encoder.start();
         timeBasedRollingPolicy.start();
         rollingFileAppender.start();
 
@@ -128,7 +149,6 @@ public class LogbackDemoApp {
         StatusPrinter.printInCaseOfErrorsOrWarnings(context);
 
     }
-
 
 
     public static TimeBasedRollingPolicy<ILoggingEvent> sizeAndTimeTriggeringPolicy(
