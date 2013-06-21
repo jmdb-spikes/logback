@@ -14,6 +14,8 @@ import ch.qos.logback.core.util.StatusPrinter;
 import net.logstash.logback.encoder.LogstashEncoder;
 import org.slf4j.LoggerFactory;
 
+import static java.lang.String.format;
+
 public class LogbackDemoApp {
 
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(LogbackDemoApp.class);
@@ -44,6 +46,7 @@ public class LogbackDemoApp {
      * http://www.balabit.com/network-security/syslog-ng
      */
     public static void main(String[] args) {
+        resetLogging();
 
         initialiseConsoleLogging(Level.TRACE, STANDARD_OPS_FORMAT);
 
@@ -68,7 +71,7 @@ public class LogbackDemoApp {
 
         log.trace("VERY LOW LEVEL");
         log.debug("Some debug...");
-        log.info("Hello [{}]", "jim");
+        log.info(format("Hello [%s]", "jim"));
         log.warn("Ooh a warning...");
         log.error("OMG! AN ERROR!!!");
         log.error("AN Error with stack trace!", new IllegalAccessException("BOOM!"));
@@ -87,20 +90,19 @@ public class LogbackDemoApp {
         root.setLevel(level);
         root.setAdditive(true);
 
-        ConsoleAppender<ILoggingEvent> consoleAppender = (ConsoleAppender<ILoggingEvent>) root.getAppender("console");
-
-        consoleAppender.stop();
-
         PatternLayoutEncoder layoutEncoder = new PatternLayoutEncoder();
-
         layoutEncoder.setPattern(pattern);
         layoutEncoder.setContext(context);
         layoutEncoder.start();
 
+        ConsoleAppender<ILoggingEvent> consoleAppender = new ConsoleAppender<ILoggingEvent>();
+        consoleAppender.setName("_default");
         consoleAppender.setEncoder(layoutEncoder);
         consoleAppender.setContext(context);
 
         consoleAppender.start();
+
+        root.addAppender(consoleAppender);
 
         StatusPrinter.printInCaseOfErrorsOrWarnings(context);
     }
@@ -117,6 +119,10 @@ public class LogbackDemoApp {
     }
 
 
+    private static void resetLogging() {
+        LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
+        context.reset();
+    }
 
     private static void initialiseFileLogging(String appenderName, Level level,
                                               String filename, boolean append,
@@ -124,6 +130,7 @@ public class LogbackDemoApp {
                                               TimeBasedRollingPolicy<ILoggingEvent> timeBasedRollingPolicy) {
 
         LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
+
         Logger root = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
 
         root.setLevel(level);
