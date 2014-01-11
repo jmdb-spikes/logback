@@ -83,7 +83,7 @@ public class LogbackDemoApp {
         StatusPrinter.print(context);
     }
 
-    private static void initialiseConsoleLogging(Level level, String pattern) {
+    public static void initialiseConsoleLogging(Level level, String pattern) {
         LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
         Logger root = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
 
@@ -119,7 +119,7 @@ public class LogbackDemoApp {
     }
 
 
-    private static void resetLogging() {
+    public static void resetLogging() {
         LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
         context.reset();
     }
